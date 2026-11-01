@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Lab2.MainPage"
+             Title="Електронний архів факультету (КНУ)"
+             BackgroundColor="#F4F6F9">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Заголовок -->
+            <Border BackgroundColor="#800000" Padding="15" StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Електронний архів факультету"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="КНУ імені Тараса Шевченка — Аналіз та трансформація XML-даних"
+                           FontSize="13"
+                           TextColor="#E8D8D8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Крок 1: Вибір XML-файлу -->
+            <Border BackgroundColor="White" Padding="15" Stroke="#D0D7DE" StrokeShape="RoundRectangle 8">
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="15" VerticalOptions="Center">
+                    <Button Grid.Column="0"
+                            Text="📂 Обрати XML-файл"
+                            BackgroundColor="#800000"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            Clicked="OnSelectXmlFileClicked" />
+                    <Label Grid.Column="1"
+                           x:Name="FilePathLabel"
+                           Text="Файл не обрано (оберіть archive.xml)"
+                           VerticalOptions="Center"
+                           TextColor="#555555"
+                           FontAttributes="Italic" />
+                </Grid>
+            </Border>
+
+            <!-- Крок 2: Параметри пошуку (Фільтри) -->
+            <Border BackgroundColor="White" Padding="15" Stroke="#D0D7DE" StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="1. Параметри пошуку та фільтрації"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#800000" />
+
+                    <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="15" RowSpacing="10">
+                        <!-- Автор -->
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                            <Label Text="Автор:" FontAttributes="Bold" TextColor="#333333" />
+                            <Picker x:Name="AuthorPicker" Title="Оберіть автора" TextColor="Black" BackgroundColor="#F8F9FA" />
+                        </VerticalStackLayout>
+
+                        <!-- Факультет -->
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                            <Label Text="Факультет:" FontAttributes="Bold" TextColor="#333333" />
+                            <Picker x:Name="FacultyPicker" Title="Оберіть факультет" TextColor="Black" BackgroundColor="#F8F9FA" />
+                        </VerticalStackLayout>
+
+                        <!-- Кафедра -->
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
+                            <Label Text="Кафедра:" FontAttributes="Bold" TextColor="#333333" />
+                            <Picker x:Name="DepartmentPicker" Title="Оберіть кафедру" TextColor="Black" BackgroundColor="#F8F9FA" />
+                        </VerticalStackLayout>
+
+                        <!-- Вид матеріалу -->
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                            <Label Text="Вид матеріалу:" FontAttributes="Bold" TextColor="#333333" />
+                            <Picker x:Name="MaterialTypePicker" Title="Оберіть вид матеріалу" TextColor="Black" BackgroundColor="#F8F9FA" />
+                        </VerticalStackLayout>
+
+                        <!-- Ключове слово -->
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                            <Label Text="Ключове слово (пошук у назві, обсязі, даті або атрибутах):" FontAttributes="Bold" TextColor="#333333" />
+                            <Entry x:Name="KeywordEntry"
+                                   Placeholder="Введіть текст для пошуку (наприклад: C#, Алгоритми, 2025)..."
+                                   TextColor="Black"
+                                   BackgroundColor="#F8F9FA" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Крок 3: Вибір стратегії парсингу (Strategy Pattern) -->
+            <Border BackgroundColor="White" Padding="15" Stroke="#D0D7DE" StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="2. Метод аналізу XML (Шаблон Strategy)"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#800000" />
+
+                    <HorizontalStackLayout Spacing="30">
+                        <RadioButton x:Name="SaxRadio"
+                                     GroupName="StrategyGroup"
+                                     Content="SAX API (XmlReader)"
+                                     Value="SAX"
+                                     TextColor="Black"
+                                     CheckedChanged="OnStrategyChanged" />
+                        <RadioButton x:Name="DomRadio"
+                                     GroupName="StrategyGroup"
+                                     Content="DOM API (XmlDocument + XPath)"
+                                     Value="DOM"
+                                     TextColor="Black"
+                                     CheckedChanged="OnStrategyChanged" />
+                        <RadioButton x:Name="LinqRadio"
+                                     GroupName="StrategyGroup"
+                                     Content="LINQ to XML (XDocument)"
+                                     Value="LINQ"
+                                     IsChecked="True"
+                                     TextColor="Black"
+                                     CheckedChanged="OnStrategyChanged" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Кнопки дій -->
+            <Grid ColumnDefinitions="*, *, *, *" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="🔍 Пошук"
+                        BackgroundColor="#1E7E34"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSearchClicked" />
+
+                <Button Grid.Column="1"
+                        Text="🧹 Clear (Очистити)"
+                        BackgroundColor="#6C757D"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnClearClicked" />
+
+                <Button Grid.Column="2"
+                        Text="🌐 Трансформувати в HTML"
+                        BackgroundColor="#0056B3"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnTransformToHtmlClicked" />
+
+                <Button Grid.Column="3"
+                        Text="🚪 Вихід"
+                        BackgroundColor="#C82333"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnExitClicked" />
+            </Grid>
+
+            <!-- Поле виводу результатів) -->
+            <Border BackgroundColor="White" Padding="15" Stroke="#D0D7DE" StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="8">
+                    <Label x:Name="ResultsCountLabel"
+                           Text="Результати пошуку:"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#800000" />
+
+                    <Border BackgroundColor="#F8F9FA" Stroke="#E0E0E0" Padding="12" StrokeShape="RoundRectangle 6">
+                        <ScrollView HeightRequest="260" VerticalScrollBarVisibility="Always">
+                            <Label x:Name="OutputEditor"
+                                   FontFamily="Consolas"
+                                   FontSize="14"
+                                   TextColor="#212529"
+                                   LineBreakMode="WordWrap"
+                                   Text="Тут з'являться результати пошуку..." />
+                        </ScrollView>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
