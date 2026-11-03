@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:output method="html" encoding="utf-8" indent="yes"/>
 
-	<!-- Головний шаблон для кореневого елемента FacultyArchive (як на слайді 34) -->
+	<!-- Головний шаблон для кореневого елемента FacultyArchive -->
 	<xsl:template match="FacultyArchive">
 		<HTML>
 			<HEAD>
@@ -53,7 +53,7 @@
 		</HTML>
 	</xsl:template>
 
-	<!-- Шаблон для кожного елемента Material (як на слайдах 25 та 34) -->
+	<!-- Шаблон для кожного елемента Material -->
 	<xsl:template match="Material">
 		<TR>
 			<TD>
