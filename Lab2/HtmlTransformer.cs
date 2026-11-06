@@ -1,35 +1,49 @@
-﻿using System;
-using System.IO;
+﻿using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Xsl;
 
 namespace Lab2
 {
     public class HtmlTransformer
     {
-        private XslCompiledTransform _xsltTransform;
-
-        public HtmlTransformer()
+        public void TransformToHtml(List<ArchiveMaterial> materials, string xslPath, string outputHtmlPath)
         {
-            _xsltTransform = new XslCompiledTransform();
-        }
+            var root = new XElement("FacultyArchive");
 
-        public void TransformToHtml(string xmlPath, string xslPath, string htmlOutputPath)
-        {
-            if (!ValidateFiles(xmlPath, xslPath))
+            foreach (var m in materials)
             {
-                throw new FileNotFoundException("Не знайдено вхідний XML або XSL файл для трансформації.");
+                var materialElement = new XElement("Material",
+                    new XAttribute("Author", m.Author ?? string.Empty),
+                    new XAttribute("Faculty", m.Faculty ?? string.Empty),
+                    new XAttribute("Department", m.Department ?? string.Empty),
+                    new XAttribute("MaterialType", m.MaterialType ?? string.Empty)
+                );
+
+                if (!string.IsNullOrEmpty(m.Language))
+                {
+                    materialElement.Add(new XAttribute("Language", m.Language));
+                }
+
+                materialElement.Add(new XElement("Details",
+                    new XElement("Title", m.Details.Title ?? string.Empty),
+                    new XElement("Volume", m.Details.Volume ?? string.Empty),
+                    new XElement("CreationDate", m.Details.CreationDate ?? string.Empty)
+                ));
+
+                root.Add(materialElement);
             }
 
-            _xsltTransform.Load(xslPath);
-            _xsltTransform.Transform(xmlPath, htmlOutputPath);
-        }
+            XDocument filteredDoc = new XDocument(root);
 
-        private bool ValidateFiles(string xmlPath, string xslPath)
-        {
-            if (string.IsNullOrWhiteSpace(xmlPath) || string.IsNullOrWhiteSpace(xslPath))
-                return false;
+            XslCompiledTransform xslt = new XslCompiledTransform();
+            xslt.Load(xslPath);
 
-            return File.Exists(xmlPath) && File.Exists(xslPath);
+            using (XmlReader reader = filteredDoc.CreateReader())
+            using (XmlWriter writer = XmlWriter.Create(outputHtmlPath, xslt.OutputSettings))
+            {
+                xslt.Transform(reader, writer);
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Lab2
         private XmlAnalyzerContext _analyzerContext;
         private XmlAttributeExtractor _attributeExtractor;
         private HtmlTransformer _htmlTransformer;
+        private List<ArchiveMaterial> _currentSearchResults = new List<ArchiveMaterial>();
 
         public MainPage()
         {
@@ -60,6 +61,8 @@ namespace Lab2
                     }
 
                     LoadFilterAttributes(_xmlFilePath);
+
+                    _currentSearchResults.Clear();
                     OutputEditor.Text = "XML-файл успішно завантажено. Списки фільтрів оновлено.";
                 }
             }
@@ -138,6 +141,9 @@ namespace Lab2
                 _currentFilter.Keyword = KeywordEntry.Text ?? string.Empty;
 
                 List<ArchiveMaterial> results = _analyzerContext.ExecuteSearch(_xmlFilePath, _currentFilter);
+
+                _currentSearchResults = results;
+
                 DisplayResults(results);
             }
             catch (Exception ex)
@@ -169,6 +175,8 @@ namespace Lab2
         {
             _currentFilter.Clear();
 
+            _currentSearchResults.Clear();
+
             if (AuthorPicker.ItemsSource != null && AuthorPicker.ItemsSource.Count > 0)
                 AuthorPicker.SelectedIndex = 0;
 
@@ -191,6 +199,12 @@ namespace Lab2
             if (string.IsNullOrWhiteSpace(_xmlFilePath) || !File.Exists(_xmlFilePath))
             {
                 await DisplayAlert("Увага", "Спочатку оберіть XML-файл архіву!", "OK");
+                return;
+            }
+
+            if (_currentSearchResults == null || _currentSearchResults.Count == 0)
+            {
+                await DisplayAlert("Увага", "Спочатку виконайте пошук, щоб отримати результати у вікні виводу для створення HTML-звіту!", "OK");
                 return;
             }
 
@@ -218,7 +232,6 @@ namespace Lab2
                 string? htmlOutputPath = null;
 
 #if WINDOWS
-                // Відкриваємо системне вікно збереження файлу Windows ("Зберегти як...")
                 var savePicker = new Windows.Storage.Pickers.FileSavePicker();
                 savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
                 savePicker.FileTypeChoices.Add("HTML Вебсторінка", new List<string>() { ".html" });
@@ -244,7 +257,7 @@ namespace Lab2
                 if (string.IsNullOrWhiteSpace(htmlOutputPath))
                     return;
 
-                _htmlTransformer.TransformToHtml(_xmlFilePath, _xslFilePath, htmlOutputPath);
+                _htmlTransformer.TransformToHtml(_currentSearchResults, _xslFilePath, htmlOutputPath);
 
                 await DisplayAlert("Успіх", $"HTML-звіт успішно збережено за шляхом:\n{htmlOutputPath}", "OK");
             }
